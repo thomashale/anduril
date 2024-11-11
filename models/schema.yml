@@ -4,7 +4,7 @@ models:
   - name: inventory_daily
     description: "A running total of item quantities and values by location, bin, and inventory status"
     tests:
-      dbt_utils.unique_combination_of_columns:
+      - dbt_utils.unique_combination_of_columns:
         combination_of_columns:
           - date
           - location_id
