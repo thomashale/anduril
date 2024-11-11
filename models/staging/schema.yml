@@ -1,0 +1,122 @@
+version: 2
+
+models:
+  - name: stg_bin
+    description: "A dimension table mapping bin ID to bin name"
+    columns:
+      - name: bin_id
+        tests:
+          - unique
+          - not_null
+      - name: bin_name
+        description: "Note that bin names are not unique"
+        tests:
+          - not_null
+        
+  - name: stg_cost
+    description: "A fact table of costs by item, location, and date"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - location_id
+            - item_id
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: location_id
+        tests:
+          - not_null
+      - name: item_id
+        tests:
+          - not_null
+      - name: cost
+        description: "Cost cast to a decimal type with two decimal places. Use this formatted cost in downstream models"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">=0.01"
+      - name: original_cost
+        description: "The untransformed raw cost value for auditing purposes. Contains values such as 30.630000000000003"
+
+  - name: stg_inventory_status
+    description: "A dimension table mapping inventory status ID to status name"
+    columns:
+      - name: inventory_status_id
+        tests:
+          - unique
+          - not_null
+      - name: inventory_status_name
+        tests:
+          - not_null
+
+  - name: stg_item
+    description: "A dimension table mapping item ID to item name"
+    columns:
+      - name: item_id
+        tests:
+          - unique
+          - not_null
+      - name: item_name
+        tests:
+          - not_null
+  
+  - name: stg_location
+    description: "A dimension table mapping location ID to location name"
+    columns:
+      - name: location_id
+        tests:
+          - unique
+          - not_null
+      - name: location_name
+        tests:
+          - not_null
+
+  - name: stg_transaction_line
+    description: "A fact table of NetSuite transactions"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - transaction_id
+            - transaction_line_id
+            - bin_id
+            - inventory_status_id
+            - quantity
+    columns:
+      - name: transaction_date
+        tests:
+          - not_null
+      - name: transaction_id
+        tests:
+          - not_null
+      - name: transaction_line_id
+        tests:
+          - not_null
+      - name: transaction_type
+        tests:
+          - not_null
+      - name: type_based_document_number
+        tests:
+          - not_null
+      - name: type_based_document_status
+        tests:
+          - not_null
+      - name: item_id
+        tests:
+          - not_null
+      - name: bin_id
+        tests:
+          - not_null
+      - name: inventory_status_id
+        tests:
+          - not_null
+      - name: location_id
+        tests:
+          - not_null
+      - name: quantity
+        description: "The quantity cast to a decimal with two decimal places. Use this formatted quantity in downstream models"
+        tests:
+          - not_null
+      - name: original_quantity
+        description: "The untransformed raw quantity value for auditing purposes. Contains values such as -10.00000005"
+

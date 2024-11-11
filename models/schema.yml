@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: inventory_daily
+    description: "A running total of item quantities and values by location, bin, and inventory status"
+    tests:
+      dbt_utils.unique_combination_of_columns:
+        combination_of_columns:
+          - date
+          - location_id
+          - bin_id
+          - item_id
+          - inventory_status_id
+    columns:
+      - name: date
+        tests:
+          - not_null
+      - name: location_id
+        tests:
+          - not_null
+      - name: location_name
+      - name: bin_id
+        tests:
+          - not_null
+      - name: bin_name
+        description: "Note that bin names are not unique"
+      - name: item_id
+        tests:
+          - not_null
+      - name: item_name
+      - name: inventory_status_id
+        tests:
+          - not_null
+      - name: inventory_status_name
+      - name: quantity
+        description: "The running total of items available at the given location, bin, and status as of the date."
+      - name: value
+        description: "The running total of item value available at the given location, bin, and status as of the date."
